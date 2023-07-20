@@ -1,0 +1,13 @@
+export(UpDown,UpDownApp)
+#exportPattern("^[[:alpha:]]+")
+
+#functions used in the package
+importFrom("mixtools","normalmixEM")
+importFrom("mclust","Mclust","mclustBIC")
+importFrom("reshape2","dcast")
+importFrom("dplyr","group_by","n","summarise","%>%","summarise_at","mutate")
+importFrom("graphics", "abline", "lines", "par")
+importFrom("utils", "tail")
+
+#packages
+import(stats,shiny,ggplot2)
