@@ -20,7 +20,7 @@ validation<-function(est,tab_down, scale,k=k, pert,pert_underscale,h.int=h.int,t
     
     if (length(unique(round(x)))==1){
       pct2=1
-      tab<-rbind(tab,c(name=g,start=median(x),end=median(x2),intensity=median(x4)))
+      tab<-rbind(tab,data.frame(name=g,start=median(x),end=median(x2),intensity=median(x4)))
       
     } else {
       

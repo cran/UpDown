@@ -33,9 +33,8 @@ https://doi.org/10.1016/j.animal.2022.100496
 }
 
 \examples{
-theo_dat=get(data(PigDisturbance))
-str(theo_dat)
-theo_dat[c(1,6,5405),]
+str(PigDisturbance)
+PigDisturbance[c(1,6,5405),]
 }
 
 \keyword{simulated datasets}

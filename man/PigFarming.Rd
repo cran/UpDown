@@ -28,8 +28,7 @@ https://doi.org/10.1016/j.animal.2022.100496
 }
 
 \examples{
-data=get(data(PigFarming))
-str(data)
-plot(subset(data,id==6)$weight)
+str(PigFarming)
+plot(subset(PigFarming,id==6)$weight)
 }
 \keyword{simulated datasets}

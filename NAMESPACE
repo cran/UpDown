@@ -4,7 +4,7 @@ export(UpDown,UpDownApp)
 #functions used in the package
 importFrom("mixtools","normalmixEM")
 importFrom("mclust","Mclust","mclustBIC")
-importFrom("reshape2","dcast")
+importFrom("tidyr","spread")
 importFrom("dplyr","group_by","n","summarise","%>%","summarise_at","mutate")
 importFrom("graphics", "abline", "lines", "par")
 importFrom("utils", "tail")

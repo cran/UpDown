@@ -72,7 +72,7 @@ An Rshiny application makes possible to visualize the data organized by the hier
 
 
 ```
-UpDownApp(updown.out)
+UpDownApp(UpDown.out)
 
 ```
 

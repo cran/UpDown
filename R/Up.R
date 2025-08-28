@@ -36,10 +36,9 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
   
   colnames(anim_out)[1]="ID"
   ao=anim_out[anim_out$nb<con$minobs,]$ID 
-  #removedID=NULL
-  if(length(ao)>=1)
+
+    if(length(ao)>=1)
     for(i in 1:length(ao)){
-      #removedID[i]<-ao[i]
       warning(paste(levels[nl],ao[i],"has been removed because the trajectory contains less than ", con$minobs, " observations \n"))
     }
   data=data[!get(levels[nl],pos=data)%in%ao,]
@@ -52,10 +51,7 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
   if(nl>1)
     for(i in 1:(nl-1)){
       if(length(unique(get(levels[i])))<4) stop(paste("Not enough elements in",levels[i],"level. Minimum allowed is 4",sep=" "),call. = FALSE)
-     # for(k in (i+1):nl)
-     #    if(length(unique(get(levels[i])))> length(unique(get(levels[k]))))
-     #      stop(paste("wrong order for the hierarchical levels or duplicated names in",levels[k],"level",sep=" "),call. = FALSE)
-    }
+      }
   
 
   if(nl>1)
@@ -65,11 +61,6 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
     }
   }
 
-  
-  #tab=data2 %>% group_by(batch) %>% summarise(unique(pen))
-  #sum(duplicated(tab[,2])>0)
-
-  
   if(!is.null(correction)){
     for(j in 1:length(correction))
       if(!correction[j] %in% colnames(data))
@@ -78,14 +69,14 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
     
     
   }else  data$cobs<-get(obs,pos=data)
-  ytest<-dcast(data[,c(levels[nl],"cobs",vtime)],get(levels[nl])~get(vtime),value.var="cobs",fun.aggregate=length)
+  ytest<-table(data[,c(levels[nl],vtime)])
+  
   if(sum(apply(ytest[,-1],2,max)>1)) stop(sum(apply(ytest[,-1],2,max)>1)," ",levels[nl]," have duplicate times",call. = FALSE)
-  y<-dcast(data[,c(levels[nl],"cobs",vtime)],get(levels[nl])~get(vtime),value.var="cobs")
+  y=spread( data[,c(levels[nl],"cobs",vtime)] ,get(vtime),"cobs")
   
   ind<-y[,1]
   y<-y[,-1]
   rownames(y)<-ind
-  #n<-ncol(y)
   n<-max(apply(y,1,function(x) length(x[!is.na(x)])))
   
   if(is.null(h.int)) h.int<-sqrt(n)
@@ -104,11 +95,10 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
         colnames(med_levk)[1:2]<-c(levels[k],vtime)
 
       if(sum(med_levk$nb<=(median(med_levk$nb)*0.5))>0) #if existing
-        med_levk[med_levk$nb<=(median(med_levk$nb)*0.5),]$cobs<-NA
+      med_levk[med_levk$nb<=(median(med_levk$nb)*0.5),]$cobs<-NA
       
-      #head(med_levk)
+      med_lev[[k]]<-spread( med_levk[,c(levels[k],"cobs",vtime)] ,get(vtime),"cobs")
       
-      med_lev[[k]]<-dcast(med_levk[,c(levels[k],"cobs",vtime)],get(levels[k])~get(vtime),value.var="cobs")
       names_lev[[k]]<-med_lev[[k]][,1]
       med_lev[[k]]<-med_lev[[k]][,-1]
       rownames(med_lev[[k]])<-names_lev[[k]]
@@ -122,10 +112,7 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
   med_lev[[nl]]<-y
   thr<-rep(0,nl)
   names(thr)<-levels
-  
-  
 
-  
   for(k in 1:nl)
   {
     ri<-apply(apply(med_lev[[k]],1,complete.cases),2,sum)
@@ -142,12 +129,7 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
     }
   }
   
-
-  
-  #new.lev<-levels
   for(k in 1:nl){
-    
-    #N<-length(unique(get(levels[k])))
     N<-length(names_lev[[k]])
     sc.x[[k]] <- sc.y[[k]] <- matrix(rep(0,floor(h.int*n)*N),N,floor(h.int*n))
     dY[[k]]<-dX[[k]]<-matrix(rep(0,(floor(h.int*n)-1)*N),N,floor(h.int*n)-1)
@@ -164,13 +146,11 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
       dX[[k]][i,]<-t$dX
     }
     
-    
-    
     if(!is.null(con$seed)) set.seed(con$seed)
     cat(paste("level ", levels[k],": ", "number of elements","=",length(Vmin[[k]]),"; ", sep=""))
     mixmdl[[k]] <- try(normalmixEM(Vmin[[k]], k=2, epsilon = con$epsilon, maxit = con$maxit, maxrestarts=con$maxrestarts,
                                    verb = con$verb, fast=con$fast, ECM = con$ECM, arbmean = con$arbmean, arbvar = con$arbvar), silent=TRUE)
-    #plot(mixmdl, which = 2,breaks=15)
+
     if(inherits(mixmdl[[k]],"try-error")) {classification[[k]]<-NA;  cat("mixmodel does not work \n"); stop(paste("The EM algorithm does not converge for level", levels[k], "try to remove this level"),call. = FALSE)}
     
     if(!inherits(mixmdl[[k]],"try-error")){
@@ -182,10 +162,7 @@ Up<-function(data,levels,obs,vtime, h.int=NULL,mixplot=FALSE, correction=NULL,
     }
     
   }
-  #levels<-new.lev
-  #nl<-length(levels)
-  #thr<-thr[thr!=0]  
-  
+
   if(mixplot==TRUE)
   {
     opar<-par(mfrow=c(1,nl))

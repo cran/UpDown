@@ -90,16 +90,13 @@ Watson, G. S. Smooth regression analysis. Sankhya: The Indian Journal of Statist
 
 \examples{
 \donttest{
-# load data
-data.ex=get(data(PigFarming))
-
 # optional arguments
 options<-list(maxit=100) 
 
 # considered hierarchical levels
 levels=c("batch","pen","id")
 
-UpDown.out<- UpDown(data.ex, levels=levels, vtime="time", obs="weight",
+UpDown.out<- UpDown(PigFarming, levels=levels, vtime="time", obs="weight",
 kappa=0.75, thr_va=0.5, h.int=10, mixplot=FALSE, correction="age", options=options)
 
 UpDown.out$Down$batch
@@ -109,7 +106,7 @@ UpDown.out$Down$batch
 
 
 \seealso{
-\code{\link[=normalmixEM]{normalmixEM()}}, \code{\link[=mclust]{mclust()}}, \code{\link[=ksmooth]{ksmooth()}}
+\link[mixtools]{normalmixEM}, \link[mclust]{Mclust}, \link[stats]{ksmooth}
 }
 
 

@@ -1,48 +1,15 @@
-
-median_wna<-function(x) {
-  med<-median(x,na.rm=TRUE)
-  if(sum(is.na(x))>=length(x)/2) med<-NA
-  return(med)
-}
-
-##split from right side to left side
-#rsplit <- function (x, s, n) {
-#  cc1 <- unlist(stringr::str_split(stringi::stri_reverse(x), s, n))
-#  cc2 <- (purrr::map_chr(cc1, stringi::stri_reverse))
-#  return(matrix(cc2,ncol=2,byrow=TRUE))
-#}
-
 smoothing.curve<-function(dat2i,h.int=10,n=n,method="Vmin")
 {
   time=which(!is.na(dat2i))
   na.time=which(is.na(dat2i))
   
-  #time=time[!is.na(dat2i)]
   dat2i=dat2i[!is.na(dat2i)]
-  #X <- data.frame(age=1:length(dat2i))
-  #time=as.numeric(colnames(dat2i))
-  #time=1:length(dat2i)
   modelp <-ksmooth(time, dat2i, bandwidth = h.int,kernel="normal", n.points=floor(h.int*n)) #Nadaraya-Wattson
   
   
   dX=rowMeans(embed(modelp$x,2))
   df=diff(modelp$y)/diff(modelp$x)
   df[floor(dX) %in% na.time]<-NA
-  
-  # x<-modelp$x
-  # y<-modelp$y
-  # index=which(floor(modelp$x) %in% na.time)
-  # if(length(index)>0){
-  # modelp$x<-modelp$x[-index]
-  # modelp$y<-modelp$y[-index]
-  # }
-  # 
-  # dX=rowMeans(embed(modelp$x,2))
-  # df=diff(modelp$y)/diff(modelp$x)
-  # 
-  # dX.2=rowMeans(embed(x,2))
-  # df.2=diff(y)/diff(x)
-  # df.2[floor(dX.2) %in% na.time]<-NA
   
   if(method=="Vmin") {Vmin=min(df,na.rm=T);start=modelp$x[which.min(df)]}else{Vmin=max(df,na.rm=T);start=modelp$x[which.max(df)]}
   return(list(y=modelp$y,x=modelp$x,Vmin=Vmin,start=start,dY=df,dX=dX ))
@@ -54,8 +21,6 @@ moment.estimation<-function(dat2i,h.int=10,th,eps=5,n=n)
   time=which(!is.na(dat2i))
   na.time=which(is.na(dat2i))
   
-  #time=time[!is.na(dat2i)]
-  #print(time)
   dd=dat2i[!is.na(dat2i)]
   #dat2i=med_batch[ibatch,]
   #plot(time,dd)
@@ -64,21 +29,11 @@ moment.estimation<-function(dat2i,h.int=10,th,eps=5,n=n)
   #time=1:length(dat2i)
   modelp <-ksmooth(time, dd, bandwidth = h.int,kernel="normal", n.points=floor(h.int*n)) #Nadaraya-Wattson smoothing curve
   #lines(modelp$x,modelp$y,col="red")
-
+  
   dX=rowMeans(embed(modelp$x,2))
   df=diff(modelp$y)/diff(modelp$x)
   df[floor(dX) %in% na.time]<-NA
   
-  # index=which(floor(modelp$x) %in% na.time)
-  # if(length(index)>0){
-  # modelp$x<-modelp$x[-index]
-  # modelp$y<-modelp$y[-index]
-  # }
-  # dX=rowMeans(embed(modelp$x,2))
-  # df=diff(modelp$y)/diff(modelp$x)
-  
-  #plot(dX,df,type='l')
-
   modelp2 <-ksmooth(dX, df, bandwidth = 1,kernel="normal", n.points=floor(h.int*n)) #Nadaraya-Wattson smoothing curve
 
   ddf=diff(modelp2$y)/diff(modelp2$x)
@@ -96,9 +51,8 @@ moment.estimation<-function(dat2i,h.int=10,th,eps=5,n=n)
 
   tx=inflexion.decr[df[which(dsp2$sign>0)]<=th] ##inflexion points under the threshold thb
 
-  #si pas de valeur je rajoute le min
+  #if no value
   if (length(tx)==0){
-    #tx=round(dX[which.min(df)])
     tx=dX[which.min(df)]
   }
   M0=unique(tx)
